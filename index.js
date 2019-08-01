@@ -1,14 +1,18 @@
-var express = require('express')
-var app = express()
-var port = 5000
-
-app.set('view engine', 'ejs')
-app.set('views', './views')
-
+var app = require('express')()
+var http = require('http').createServer(app)
+var io = require('socket.io')(http)
 app.get('/', function(req, res) {
-    res.send('Hello World')
+    res.sendFile(__dirname + '/index.html')
 })
 
-app.listen(port, function() {
-    console.log('app running at port ' + port)
+io.on('connection', function(socket) {
+    socket.broadcast.emit('hi');
+    socket.on('chat message', function(msg) {
+        io.emit('chat message', msg);
+    })
+})
+
+
+http.listen(process.env.PORT ||3000, function() {
+    console.log('listening on port 3000')
 })
